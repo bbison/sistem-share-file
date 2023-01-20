@@ -14,13 +14,19 @@ class mainController extends Controller
         return view('profileSekolah.index');
     }
     public static function prosesLogin(Request $request){
-    
-        if (Auth::attemptWhen([
-            'id' => $request['id'],
-            'password' => $request['password'],
-        ])) {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+
+        if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+
             return redirect()->intended('/profile');
         }
+
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email');
     }
 }
